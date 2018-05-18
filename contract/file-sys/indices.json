@@ -1,0 +1,16 @@
+{
+  "content": [
+    {
+      "index": "1",
+      "ref": "1-{timestamp}.json"
+    },
+    {
+      "index": "2",
+      "ref": "2-{timestamp}.json"
+    },
+    {
+      "index": "3",
+      "ref": "3-{timestamp}.json"
+    }
+  ]
+}
