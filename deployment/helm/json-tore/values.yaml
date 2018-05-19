@@ -5,13 +5,15 @@
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: gcr.io/engaged-domain-203305/
   tag: stable
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 service:
+  name: json-tore
   type: ClusterIP
-  port: 80
+  externalPort: 80
+  internalPort: 80
 
 ingress:
   enabled: false
