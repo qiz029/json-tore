@@ -35,3 +35,6 @@ class kv_storage(object):
 
     def size(self):
         return len(self.mem_kv)
+
+    def write(self):
+        JIO.write_json(self.mem_kv)

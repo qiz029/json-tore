@@ -7,6 +7,7 @@ import socket
 import logging
 from storage import kv_storage as store
 from utils.logger import json_log as log
+from apscheduler.schedulers.background import BackgroundScheduler
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -71,5 +72,11 @@ def check_index(index):
         return "", 200
     return "", 404
 
+def test_job():
+    store.write()
+
 if __name__ == '__main__':
+    scheduler = BackgroundScheduler()
+    job = scheduler.add_job(test_job, 'interval', minutes=1)
+    scheduler.start()
     app.run(host="localhost", port=80, debug=True)
