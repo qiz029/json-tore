@@ -4,20 +4,25 @@ from flask import Flask, request, jsonify
 import sys
 import json
 import socket
+import logging
 from storage import kv_storage as store
+from utils.logger import json_log as log
 
 reload(sys)
 sys.setdefaultencoding('utf8')
 
 app = Flask(__name__)
 store = store()
+LOG = log(className = __name__, log_level=logging.DEBUG)
 
 @app.route('/')
 def index():
+    LOG.debug("root controller reached")
     return "welcome to json-tore, a python based in memory json kv store"
 
 @app.route('/index/<index>', methods=['POST'])
 def add_index(index):
+    LOG.debug("POST index controller reached")
     if not request.headers['Content-Type'] == 'application/json':
         return jsonify({"msg": "Only accept json format body"}), 403
     if (store.create_index(index, request.get_json(force=True))):
@@ -26,6 +31,7 @@ def add_index(index):
 
 @app.route('/index/<index>', methods=['PUT'])
 def update_index(index):
+    LOG.debug("PUT index controller reached")
     if not request.headers['Content-Type'] == 'application/json':
         return jsonify({"msg": "Only accept json format body"}), 403
     if (store.update_index(index, request.get_json(force=True))):
@@ -34,6 +40,7 @@ def update_index(index):
 
 @app.route('/index/<index>', methods=['GET', 'HEAD'])
 def get_index(index):
+    LOG.debug("GET and HEAD index controller reached")
     if request.method == 'HEAD':
         return check_index(index)
     if not request.headers['Accept'] == 'application/json':
@@ -45,15 +52,18 @@ def get_index(index):
 
 @app.route('/index/<index>', methods=['DELETE'])
 def delete_index(index):
+    LOG.debug("DELETE index controller reached")
     store.delete_index(index)
     return "", 204
 
 @app.route('/index', methods=['GET'])
 def get_all_index():
+    LOG.debug("GET all index controller reached")
     return jsonify(store.show_all_index()), 200
 
 @app.route('/size', methods=['GET'])
 def get_size():
+    LOG.debug("GET size controller reached")
     return jsonify(store.size()), 200
 
 def check_index(index):
