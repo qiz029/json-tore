@@ -36,7 +36,7 @@ def update_index(index):
     if not request.headers['Content-Type'] == 'application/json':
         return jsonify({"msg": "Only accept json format body"}), 403
     if (store.update_index(index, request.get_json(force=True))):
-        return jsonify({"msg": "Updated index {0}".format(index)}), 201
+        return jsonify({"msg": "Updated index {0}".format(index)}), 200
     return jsonify({"msg": "failed created index {0}".format(index)}), 409
 
 @app.route('/index/<index>', methods=['GET', 'HEAD'])
