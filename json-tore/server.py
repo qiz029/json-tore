@@ -36,7 +36,7 @@ def update_index(index):
     if not request.headers['Content-Type'] == 'application/json':
         return jsonify({"msg": "Only accept json format body"}), 403
     if (store.update_index(index, request.get_json(force=True))):
-        return jsonify({"msg": "created index {0}".format(index)}), 201
+        return jsonify({"msg": "Updated index {0}".format(index)}), 201
     return jsonify({"msg": "failed created index {0}".format(index)}), 409
 
 @app.route('/index/<index>', methods=['GET', 'HEAD'])
@@ -67,16 +67,16 @@ def get_size():
     LOG.debug("GET size controller reached")
     return jsonify(store.size()), 200
 
+@app.route('/backup', methods=['POST'])
+def backup():
+    LOG.debug("POST backup controller reached")
+    store.write_to_file()
+    return "", 200
+
 def check_index(index):
     if store.check_index(index):
         return "", 200
     return "", 404
 
-def test_job():
-    store.write()
-
 if __name__ == '__main__':
-    scheduler = BackgroundScheduler()
-    job = scheduler.add_job(test_job, 'interval', minutes=1)
-    scheduler.start()
     app.run(host="localhost", port=80, debug=True)

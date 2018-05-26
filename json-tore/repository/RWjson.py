@@ -1,44 +1,79 @@
 import datetime
 import json
+import logging
+import os
+from utils.logger import json_log as log
+
+LOG = log(className = __name__, log_level=logging.INFO)
 
 class jsonToreIO(object):
 
-    def __init__(self):
-        pass
+    def __init__(self, rootDir = "dataDir/"):
+        self.rootDir = rootDir
+        if not os.path.exists(self.rootDir):
+            os.makedirs(self.rootDir)
 
     # write to a json file
     # timestamp embedded in filename
     # possible bug: duplicate filenames
     def write_json(self, dictionary):
         # generate json
-        timestamp = _generate_timestamp()
-        data = json.loads(dictionary)
+        LOG.info("start to write to json file system")
+        timestamp = self._generate_timestamp()
         entries = []
-        for item in data:
-            entries.append(item)
-        for entry in entries:
-            file = open(entry + timestamp + ".json","w+")
-            file.write(data[entry])
-            file.close()
+        LOG.info("there are {0} items".format(len(dictionary)))
+        indices = self._read_json("indices.json")
+        for entry in list(dictionary.keys()):
+            with open(self.rootDir + entry + "-" + timestamp + ".json", 'w+') as fp:
+                json.dump(dictionary[entry], fp, indent=4)
+                fp.close()
             # modify indices.json
-            indices = _read_json("indices.json")
-            for x in range (0, len(indices["content"])):
-                filename = indices["content"][x]["ref"]
-                realname = ""
-                for y in range(0, len(filename)-6-len(timestamp)):
-                    realname = realname + filename[y]
-                if (realname == entry):
-                    indices["content"][x]["ref"] = realname + "-" + timestamp + ".json"
-            outfile = open("indices.json", "w+")
-            json.dump(indices, outfile)
-            outfile.close()
+            if (indices.get(entry) == None):
+                indices[entry] = {"ref": entry + "-" + timestamp + ".json"}
+            else:
+                indices[entry]["ref"] = entry + "-" + timestamp + ".json"
+        outfile = open(self.rootDir + "indices.json", "w+")
+        json.dump(indices, outfile, indent=4, sort_keys=True)
+        outfile.close()
 
+    def write_json_index(self, dictionary, index):
+        # generate json
+        LOG.info("start to write to json file system for index {0}".format(index))
+        timestamp = self._generate_timestamp()
+        indices = self._read_json("indices.json")
+        with open(self.rootDir + index + "-" + timestamp + ".json", 'w+') as fp:
+            json.dump(dictionary[index], fp, indent=4)
+            fp.close()
+        # modify indices.json
+        if (indices.get(index) == None):
+            indices[index] = {"ref": index + "-" + timestamp + ".json"}
+        else:
+            indices[index]["ref"] = index + "-" + timestamp + ".json"
+        outfile = open(self.rootDir + "indices.json", "w+")
+        json.dump(indices, outfile, indent=4, sort_keys=True)
+        outfile.close()
+
+    def delete_json_index(self, index):
+        LOG.info("start to delete index {0} in json".format(index))
+        indices = self._read_json("indices.json")
+        if (indices.get(index) == None):
+            return
+        else:
+            indices.pop(index)
+        outfile = open(self.rootDir + "indices.json", "w+")
+        json.dump(indices, outfile, indent=4, sort_keys=True)
+        outfile.close()
 
     # read a json file
     # return a json object
     def _read_json(self, filename):
         data = ""
-        with open(filename, 'r') as file:
+        try:
+            file = open(self.rootDir + filename, 'rb')
+        except IOError:
+            return {}
+
+        with file:
             filecontent = file.read()
             data = json.loads(filecontent)
         return data
@@ -47,25 +82,9 @@ class jsonToreIO(object):
     # generate timestamp
     # return string:YYMMDDHHMM (fixed length)
     def _generate_timestamp(self):
-        now = datetime.datetime.now()
-        timestamp = str(now.year)
-        month = ""
-        if (len(str(now.month)) == 1):
-            month = str(0) + str(now.month)
-        timestamp = timestamp + month
-        day = ""
-        if (len(str(now.day)) == 1):
-            day = str(0) + str(now.day)
-        timestamp = timestamp + day
-        hour = ""
-        if (len(str(now.hour)) == 1):
-            hour = str(0) + str(now.hour)
-        timestamp = timestamp + hour
-        minute = ""
-        if (len(str(now.minute)) == 1):
-            minute = str(0) + str(now.minute)
-        timestamp = timestamp + minute
-        return timestamp
+        timer = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+        LOG.info("current timestamp is {0}".format(timer))
+        return timer
 
 
     # # Test code
