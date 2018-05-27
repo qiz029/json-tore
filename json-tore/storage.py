@@ -2,6 +2,7 @@
 from repository.RWjson import jsonToreIO as JIO
 import logging
 from utils.logger import json_log as log
+import thread
 LOG = log(className = __name__, log_level=logging.DEBUG)
 
 class kv_storage(object):
@@ -15,7 +16,11 @@ class kv_storage(object):
         if index in self.mem_kv:
             return False
         self.mem_kv[index] = data
-        self.jio.write_json_index(self.mem_kv, index)
+        try:
+            thread.start_new_thread(self.jio.write_json_index, (self.mem_kv, index,))
+        except:
+            LOG.error("unable to start a thread to backup")
+        #self.jio.write_json_index(self.mem_kv, index)
         return True
 
     def get_index(self, index):
@@ -34,7 +39,11 @@ class kv_storage(object):
         if not index in self.mem_kv:
             return False
         self.mem_kv[index] = data
-        self.jio.write_json_index(self.mem_kv, index)
+        try:
+            thread.start_new_thread(self.jio.write_json_index, (self.mem_kv, index,))
+        except:
+            LOG.error("unable to start a thread to backup")
+        #self.jio.write_json_index(self.mem_kv, index)
         return True
 
     def delete_index(self, index):
