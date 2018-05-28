@@ -17,7 +17,7 @@ class kv_storage(object):
             return False
         self.mem_kv[index] = data
         try:
-            thread.start_new_thread(self.jio.write_json_index, (self.mem_kv, index,))
+            _thread.start_new_thread(self.jio.write_json_index, (self.mem_kv, index,))
         except:
             LOG.error("unable to start a thread to backup")
         #self.jio.write_json_index(self.mem_kv, index)
@@ -40,7 +40,7 @@ class kv_storage(object):
             return False
         self.mem_kv[index] = data
         try:
-            thread.start_new_thread(self.jio.write_json_index, (self.mem_kv, index,))
+            _thread.start_new_thread(self.jio.write_json_index, (self.mem_kv, index,))
         except:
             LOG.error("unable to start a thread to backup")
         #self.jio.write_json_index(self.mem_kv, index)
