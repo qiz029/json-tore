@@ -8,8 +8,8 @@ LOG = log(className = __name__, log_level=logging.DEBUG)
 class kv_storage(object):
 
     def __init__(self):
-        self.mem_kv = {}
         self.jio = JIO()
+        self.mem_kv = self.jio.read_json_bootstrap()
 
     def create_index(self, index, data):
         LOG.info("start to write an index")
@@ -17,7 +17,7 @@ class kv_storage(object):
             return False
         self.mem_kv[index] = data
         try:
-            _thread.start_new_thread(self.jio.write_json_index, (self.mem_kv, index,))
+            thread.start_new_thread(self.jio.write_json_index, (self.mem_kv, index,))
         except:
             LOG.error("unable to start a thread to backup")
         #self.jio.write_json_index(self.mem_kv, index)
@@ -40,7 +40,7 @@ class kv_storage(object):
             return False
         self.mem_kv[index] = data
         try:
-            _thread.start_new_thread(self.jio.write_json_index, (self.mem_kv, index,))
+            thread.start_new_thread(self.jio.write_json_index, (self.mem_kv, index,))
         except:
             LOG.error("unable to start a thread to backup")
         #self.jio.write_json_index(self.mem_kv, index)

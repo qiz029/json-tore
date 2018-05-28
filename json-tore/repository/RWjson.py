@@ -64,6 +64,14 @@ class jsonToreIO(object):
         json.dump(indices, outfile, indent=4, sort_keys=True)
         outfile.close()
 
+    def read_json_bootstrap(self):
+        LOG.info("start to read json file to bootstrap...")
+        indices = self._read_json("indices.json")
+        for key in indices.keys():
+            data = self._read_json(indices[key]["ref"])
+            indices[key] = data
+        return indices
+
     # read a json file
     # return a json object
     def _read_json(self, filename):
