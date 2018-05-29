@@ -73,6 +73,23 @@ def backup():
     store.write_to_file()
     return "", 200
 
+# cannot use GET since HTTP GET has no body
+@app.route('/index/filter', methods=['POST'])
+def filter_indices():
+    LOG.debug("POST index filter controller reached")
+    if not request.headers['Content-Type'] == 'application/json':
+        return jsonify({"msg": "Only accept json format body"}), 403
+    data = store.get_index_where_and(request.get_json(force=True))
+    return jsonify(data), 200
+
+@app.route('/index/filter/size', methods=['POST'])
+def filter_indices_size():
+    LOG.debug("POST index filter size controller reached")
+    if not request.headers['Content-Type'] == 'application/json':
+        return jsonify({"msg": "Only accept json format body"}), 403
+    data = store.get_index_where_and(request.get_json(force=True))
+    return jsonify(len(data)), 200
+
 def check_index(index):
     if store.check_index(index):
         return "", 200
